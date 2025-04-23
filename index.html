@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>化学の基礎用語確認　1年　ジェネレーター</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h3 {
+            margin: 0 0 10px 0;
+        }
+        .question label {
+            display: block;
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 25px; /* space for the feedback indicator */
+        }
+        .question-options {
+            margin-top: 10px;
+        }
+        .answer {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 20px;
+        }
+        .feedback {
+            margin-top: 10px;
+            color: red;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.5em; /* 大きなフォントサイズ */
+        }
+        .feedback-indicator {
+            position: absolute;
+            left: 0;
+            width: 20px;
+            text-align: center;
+        }
+        .correct-option .feedback-indicator::after {
+            content: "〇";
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect-option .feedback-indicator::after {
+            content: "×";
+            color: red;
+            font-weight: bold;
+        }
+        .option-correct {
+            color: red;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>化学の基礎用語確認　1年　ジェネレーター</h1>
+    <div id="quiz"></div>
+    <button onclick="generateQuiz()">テストをリロード</button>
+    <button onclick="showAnswers()">答えを表示</button>
+    <div id="answers" class="answer"></div>
+    <div id="result" class="result"></div>
+
+    <script>
+        const questions = [
+  { "word": "物質", "japanese": "鉄やガラスなど，ものをつくっている材料に注目するとき，それを何というか。" },
+  { "word": "空気", "japanese": "ガスバーナーの炎の色が赤いときは，（　　）調節ねじだけを少しずつ開き，炎の色を青くする。（　　）にあてはまる言葉は何か。" },
+  { "word": "有機物", "japanese": "加熱すると，二酸化炭素を発生したり，こげて炭になったりする物質を何というか。" },
+  { "word": "無機物", "japanese": "有機物以外の物質を何というか。" },
+  { "word": "二酸化炭素", "japanese": "プラスチックを燃やすと，共通して発生する気体は何か。" },
+  { "word": "金属光沢", "japanese": "金属の，みがくと光を受けて輝く性質を何というか。" },
+  { "word": "非金属", "japanese": "金属以外の物質を何というか。" },
+  { "word": "密度", "japanese": "一定の体積（ふつう1cm³）あたりの質量を何というか。" },
+  { "word": "2.4g/cm³", "japanese": "質量7.2g，体積が3.0cm³の物質の密度は何g/cm³か。" },
+  { "word": "窒素", "japanese": "空気中に体積の割合で約78％ふくまれている気体は何か。" },
+  { "word": "水上置換法", "japanese": "密度に関係なく，水に溶けにくい気体や少し溶ける気体を集める方法を何というか。" },
+  { "word": "下方置換法", "japanese": "空気より密度が大きい気体を集める方法を何というか。" },
+  { "word": "上方置換法", "japanese": "空気より密度が小さい気体を集める方法を何というか。" },
+  { "word": "酸素", "japanese": "うすい過酸化水素水が二酸化マンガンにふれたときに発生する気体は何か。" },
+  { "word": "二酸化炭素", "japanese": "石灰石を塩酸に入れたときに発生する気体は何か。" },
+  { "word": "白くにごる", "japanese": "二酸化炭素を石灰水に通すと，石灰水はどうなるか。" },
+  { "word": "酸性", "japanese": "二酸化炭素の水溶液は，何性を示すか。" },
+  { "word": "アンモニア", "japanese": "塩化アンモニウム，水酸化ナトリウム，水の順に加えたときに発生する気体は何か。" },
+  { "word": "アルカリ性", "japanese": "アンモニアの水溶液は，何性を示すか。" },
+  { "word": "水素", "japanese": "鉄を塩酸に入れると発生する気体は何か。" },
+  { "word": "塩素", "japanese": "黄緑色で，刺激臭があり，赤インクをつけたろ紙を近づけると，インクが消える性質をもつ気体は何か。" },
+  { "word": "塩化水素", "japanese": "水溶液が塩酸である気体は何か。" },
+  { "word": "状態変化", "japanese": "温度によって，物質の状態が変化することを何というか。" },
+  { "word": "変わらない", "japanese": "状態変化では，物質の質量はどうなるか。" },
+  { "word": "小さくなる", "japanese": "水が固体（氷）から液体に変化すると，体積はどうなるか。" },
+  { "word": "大きくなる", "japanese": "水が固体（氷）から液体に変化すると，密度はどうなるか。" },
+  { "word": "固体", "japanese": "物質を構成する粒子が，その場で穏やかに運動しているのは，固体・液体・気体のどの状態か。" },
+  { "word": "蒸発", "japanese": "液体の表面から，物質の粒子が空気中に出ていく現象を何というか。" },
+  { "word": "沸騰", "japanese": "蒸発に対して，液体の表面だけでなく，内部からも状態変化が起こり，気体となる現象を何というか。" },
+  { "word": "融点", "japanese": "加熱によって固体が液体に変化するときの温度を何というか。" },
+  { "word": "沸点", "japanese": "液体が沸騰して気体に変化するときの温度を何というか。" },
+  { "word": "純粋な物質", "japanese": "水や塩化ナトリウム，酸素などのように，1種類の物質からできているものを何というか。" },
+  { "word": "混合物", "japanese": "食塩水，空気などのように，2種類以上の物質が混ざっているものを何というか。" },
+  { "word": "蒸留", "japanese": "液体を沸騰させ，出てきた気体を冷やして再び液体にして集める方法を何というか。" },
+  { "word": "水溶液", "japanese": "食塩水のように，物質が水に溶けた液体を何というか。" },
+  { "word": "溶質", "japanese": "食塩水の食塩のように，水溶液に溶けている物質を何というか。" },
+  { "word": "溶媒", "japanese": "溶質を溶かしている液体を何というか。" },
+  { "word": "溶解", "japanese": "溶質が溶媒に溶ける現象を何というか。" },
+  { "word": "ろ過", "japanese": "ろ紙などを使って，混ざっている固体と液体を分ける操作を何というか。" },
+  { "word": "溶解度", "japanese": "一定の量の水に溶ける物質の最大の量を，その物質の何というか。" },
+  { "word": "飽和水溶液", "japanese": "物質が溶解度まで溶けている水溶液を何というか。" },
+  { "word": "結晶", "japanese": "規則正しい形をしている固体を何というか。" },
+  { "word": "再結晶", "japanese": "一度溶かした固体を，再び結晶としてとり出すことを何というか。" },
+  { "word": "質量パーセント濃度", "japanese": "水溶液にふくまれている溶質の質量の割合を表した濃度を何というか。" },
+  { "word": "10%", "japanese": "水450gに50gの砂糖を溶かしたときの質量パーセント濃度は何％か。" }
+];
+
+        let userAnswers = [];
+        let difficultyMap = {}; // 正答率の低い問題を記録
+        let answerStats = {}; // 各答えの正答率を記録
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function getRandomQuestions(count) {
+            const shuffled = [...questions];
+            shuffle(shuffled);
+
+            // 正答率の低い問題を2倍にする
+            const weightedQuestions = [];
+            shuffled.forEach(q => {
+                const difficultyWeight = difficultyMap[q.word] || 1;
+                for (let i = 0; i < difficultyWeight; i++) {
+                    weightedQuestions.push(q);
+                }
+            });
+            shuffle(weightedQuestions);
+            return weightedQuestions.slice(0, count);
+        }
+
+        function generateOptions(correctAnswer, allOptions, optionType) {
+            const options = [];
+            const optionsCount = 4;
+
+            while (options.length < optionsCount - 1) {
+                const randomIndex = Math.floor(Math.random() * allOptions.length);
+                const option = optionType === 'japanese' ? allOptions[randomIndex].word : allOptions[randomIndex].japanese;
+                if (option !== correctAnswer && !options.includes(option)) {
+                    options.push(option);
+                }
+            }
+
+            options.push(correctAnswer);
+            shuffle(options);
+
+            return options;
+        }
+
+        function generateQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            const answersContainer = document.getElementById('answers');
+            const resultContainer = document.getElementById('result');
+            quizContainer.innerHTML = '';
+            answersContainer.innerHTML = ''; // Clear previous answers on reload
+            resultContainer.innerHTML = ''; // Clear result on reload
+            userAnswers = []; // Clear previous answers
+
+            const questionTypes = ['説明の答えを選ぶ', '名称の説明を選ぶ'];
+            const questionsPerType = 5; // 各タイプ5問
+            let quizHtml = '';
+
+            for (let i = 0; i < questionTypes.length; i++) {
+                const questionType = questionTypes[i];
+                const questionsList = getRandomQuestions(questionsPerType);
+
+                questionsList.forEach((q, index) => {
+                    let questionText, correctAnswer, optionType;
+                    if (questionType === '説明の答えを選ぶ') {
+                        questionText = `${q.japanese}`;
+                        correctAnswer = q.word;
+                        optionType = 'japanese';
+                    } else {
+                        questionText = `${q.word}　の説明もしくは、空欄に入れると完成する文章は？`;
+                        correctAnswer = q.japanese;
+                        optionType = 'english';
+                    }
+
+                    const options = generateOptions(correctAnswer, questions, optionType);
+
+                    quizHtml += `<div class="question">
+                                    <h3>問題 ${i * questionsPerType + index + 1}: ${questionType}</h3>
+                                    <div class="question-options">
+                                        <p>${questionText}</p>`;
+
+                    options.forEach(option => {
+                        quizHtml += `<label>
+                                        <span class="feedback-indicator"></span>
+                                        <input type="radio" name="q${i * questionsPerType + index + 1}" value="${option}"> ${option}
+                                      </label>`;
+                        
+                        // Track answer stats
+                        if (!answerStats[option]) {
+                            answerStats[option] = { total: 0, correct: 0 };
+                        }
+                        answerStats[option].total++;
+                    });
+
+                    quizHtml += `</div></div>`;
+
+                    userAnswers.push({ question: `${questionText}`, correctAnswer, questionType, index: i * questionsPerType + index + 1 });
+                });
+            }
+
+            quizContainer.innerHTML = quizHtml;
+        }
+
+        function showAnswers() {
+            const answersContainer = document.getElementById('answers');
+            const resultContainer = document.getElementById('result');
+            answersContainer.innerHTML = '';
+            resultContainer.innerHTML = '';
+            let correctCount = 0;
+            const totalQuestions = userAnswers.length;
+
+            userAnswers.forEach(item => {
+                const selectedOption = document.querySelector(`input[name="q${item.index}"]:checked`);
+                const userAnswer = selectedOption ? selectedOption.value : '未選択';
+
+                const feedbackClass = userAnswer === item.correctAnswer ? 'correct' : 'incorrect';
+                if (userAnswer === item.correctAnswer) correctCount++;
+
+                answersContainer.innerHTML += `<p>問題 ${item.index}: ${item.questionType}の答えは「${item.correctAnswer}」 (${getAnswerRate(item.correctAnswer)}%)。あなたの選択: 「${userAnswer}」 <span class="${feedbackClass}">${userAnswer === item.correctAnswer ? '〇' : '×'}</span> <a href="#" onclick="showQuestion(${item.index})">(質問を表示)</a></p>`;
+
+                // Add feedback to radio buttons
+                const labels = document.querySelectorAll(`input[name="q${item.index}"]`);
+                labels.forEach(label => {
+                    const labelElement = label.parentNode;
+                    if (label.checked) {
+                        labelElement.classList.add(userAnswer === item.correctAnswer ? 'correct-option' : 'incorrect-option');
+                    } else {
+                        labelElement.classList.add(label.value === item.correctAnswer ? 'correct-option' : 'incorrect-option');
+                    }
+                });
+
+                // Update answer stats
+                if (userAnswer === item.correctAnswer) {
+                    answerStats[item.correctAnswer].correct++;
+                }
+                difficultyMap[item.correctAnswer] = (difficultyMap[item.correctAnswer] || 1) + (userAnswer === item.correctAnswer ? 0 : 1);
+            });
+
+            const correctRate = ((correctCount / totalQuestions) * 100).toFixed(2);
+            resultContainer.innerHTML = `得点率: ${correctRate}%`;
+            resultContainer.style.display = 'block';
+            answersContainer.style.display = 'block';
+        }
+
+        function getAnswerRate(answer) {
+            const stats = answerStats[answer] || { total: 1, correct: 0 };
+            return ((stats.correct / stats.total) * 100).toFixed(2);
+        }
+
+        function showQuestion(index) {
+            const questions = document.querySelectorAll('.question');
+            questions.forEach((q, i) => {
+                if (i === index - 1) {
+                    q.style.display = 'block';
+                } else {
+                    q.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', generateQuiz);
+    </script>
+</body>
+</html>
